@@ -2,6 +2,133 @@
 
 This project provides a modern implementation of the Agent-to-Agent (A2A) Communication Protocol V2 server specification using the [Hono](https://hono.dev/) web framework.
 
+## 🚀 Using This Package
+
+You can easily use this package to build your own A2A-compliant agent server with Hono.
+
+### 1. Installation
+
+Install the package along with Hono and a Hono adapter (like `@hono/node-server` for Node.js):
+
+```bash
+pnpm add hono-a2a-server hono @hono/node-server
+```
+
+### 2. Creating Your Server
+
+Create a file (e.g., `myAgentServer.ts`) and implement your agent's logic within a `TaskHandler`.
+
+```typescript
+// myAgentServer.ts
+import { serve } from "@hono/node-server";
+import {
+  A2AServer,
+  type TaskHandler,
+  type TaskContext,
+  type TaskYieldUpdate,
+  schema,
+  InMemoryTaskStore,
+} from "hono-a2a-server";
+
+// Import the Hono adapter
+
+// 1. Define your Agent's Logic (Task Handler)
+// This is where you implement how your agent processes tasks.
+async function* myAgentLogic(
+  context: TaskContext,
+): AsyncGenerator<TaskYieldUpdate, schema.Task | void, unknown> {
+  console.log(`[Agent Logic] Handling task: ${context.task.id}`);
+  const userPrompt =
+    context.userMessage.parts.find((p) => p.text)?.text || "[No prompt found]";
+  console.log(`[Agent Logic] User Prompt: ${userPrompt}`);
+
+  // Indicate work is starting
+  yield {
+    state: "working",
+    message: {
+      role: "agent",
+      parts: [{ text: `Processing request for task ${context.task.id}...` }],
+    },
+  };
+
+  // Simulate some asynchronous work
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+
+  // Check for cancellation periodically during long operations
+  if (context.isCancelled()) {
+    console.log(`[Agent Logic] Task ${context.task.id} was cancelled.`);
+    yield {
+      state: "canceled",
+      message: { role: "agent", parts: [{ text: "Task cancelled by user." }] },
+    };
+    return; // Stop processing
+  }
+
+  // Yield an artifact (e.g., a result file)
+  yield {
+    name: "result.txt", // Or use index: 0
+    mimeType: "text/plain",
+    parts: [
+      {
+        text: `This is the result for task ${context.task.id} based on prompt: "${userPrompt}"`,
+      },
+    ],
+  };
+
+  // Simulate more work
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  // Yield final status update
+  yield {
+    state: "completed",
+    message: { role: "agent", parts: [{ text: "Task processing complete!" }] },
+  };
+
+  // The generator implicitly returns void here, the server handles the final state.
+  // You could optionally return the final `schema.Task` object if needed for non-streaming 'tasks/send'.
+}
+
+// 2. Configure and Create the Server Instance
+const agentCard: schema.AgentCard = {
+  version: "1.0.0",
+  name: "My Custom Hono Agent",
+  description: "An example agent built with hono-a2a-server",
+  // Add other optional card properties like endpoints, capabilities etc.
+};
+
+const serverOptions: A2AServerOptions = {
+  taskStore: new InMemoryTaskStore(),
+  card: agentCard,
+  cors: {
+    // Example: Allow requests from any origin
+    origin: "*",
+  },
+};
+
+const server = new A2AServer(myAgentLogic, serverOptions);
+
+// 3. Start the Server
+const port = 41241;
+console.log(`Starting custom A2A server on port ${port}...`);
+
+serve(
+  {
+    fetch: server.createApp().fetch, // Get the Hono app instance and pass its fetch handler
+    port: port,
+  },
+  (info) => {
+    console.log(
+      `Custom A2A Server (Hono) listening on http://localhost:${info.port}`,
+    );
+  },
+);
+
+// You can now send requests (like the curl examples in the main README section)
+// to http://localhost:41241 to interact with your agent.
+```
+
+Now you have a running A2A server powered by your custom agent logic and the Hono framework! You can test it using the `curl` commands provided earlier in the README.
+
 ## Motivation
 
 The official A2A protocol examples utilize Express.js. While functional, Express is an older framework, and the official samples aren't readily available as installable NPM packages. This project aims to provide:

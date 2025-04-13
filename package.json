@@ -30,7 +30,9 @@
   },
   "scripts": {
     "dev": "tsx watch src/example.ts",
-    "build": "rimraf dist && tsc --module ESNext --outDir dist/esm --declaration --declarationDir dist/types --sourceMap && tsc --module CommonJS --outDir dist/cjs",
+    "build": "rimraf dist && npm run build:esm && npm run build:cjs",
+    "build:esm": "tsc -p tsconfig.prod.json && echo '{\"type\": \"module\"}' > dist/esm/package.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json && echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
@@ -44,6 +46,7 @@
     "prettier": "^3.5.3",
     "rimraf": "^6.0.1",
     "tsx": "^4.7.1",
+    "typescript": "^5.8.3",
     "typescript-eslint": "^8.29.1"
   },
   "publishConfig": {

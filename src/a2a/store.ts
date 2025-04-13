@@ -1,7 +1,7 @@
 import { A2AError } from "./error.js";
 import * as schema from "./schema.js";
-import fs from "fs/promises";
-import path from "path";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 
 // Helper type for the simplified store
 export interface TaskAndHistory {
@@ -119,7 +119,7 @@ export class FileStore implements TaskStore {
       const data = await fs.readFile(filePath, "utf8");
       return JSON.parse(data) as T;
     } catch (error: unknown) {
-      if (error instanceof A2AError && error.code === "ENOENT") {
+      if (error instanceof Error && error.name === "ENOENT") {
         return null; // File not found is not an error for loading
       }
       throw A2AError.internalError(

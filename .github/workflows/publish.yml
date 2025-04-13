@@ -1,0 +1,44 @@
+name: Publish Package to npmjs
+
+on:
+  release:
+    types: [published] # Trigger workflow when a new GitHub Release is published
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          registry-url: "https://registry.npmjs.org/"
+
+      - name: Install dependencies
+        run: npm ci # Use clean install in CI
+
+      - name: Build package
+        run: npm run build
+
+      - name: Publish package to npmjs
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # Use the secret defined in GitHub
+
+      - name: Create release artifact
+        run: zip -r release-artifact.zip dist README.md LICENSE package.json
+
+      - name: Upload release artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./release-artifact.zip
+          asset_name: release-artifact.zip
+          asset_content_type: application/zip

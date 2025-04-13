@@ -1,6 +1,6 @@
 {
   "name": "hono-a2a-server",
-  "version": "0.2.0",
+  "version": "0.1.0",
   "description": "A modern A2A Protocol V2 server implementation using Hono",
   "keywords": [
     "hono",

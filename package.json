@@ -1,0 +1,52 @@
+{
+  "name": "hono-a2a-server",
+  "version": "0.2.0",
+  "description": "A modern A2A Protocol V2 server implementation using Hono",
+  "keywords": [
+    "hono",
+    "a2a",
+    "agent",
+    "communication",
+    "server",
+    "typescript"
+  ],
+  "author": "Marcel Samyn",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
+    }
+  },
+  "scripts": {
+    "dev": "tsx watch src/example.ts",
+    "build": "rimraf dist && tsc --module ESNext --outDir dist/esm --declaration --declarationDir dist/types --sourceMap && tsc --module CommonJS --outDir dist/cjs",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.1",
+    "hono": "^4.7.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.24.0",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@types/node": "^20.11.17",
+    "prettier": "^3.5.3",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.7.1",
+    "typescript-eslint": "^8.29.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

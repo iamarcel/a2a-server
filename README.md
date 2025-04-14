@@ -2,6 +2,8 @@
 
 This project provides a modern implementation of the Agent-to-Agent (A2A) Communication Protocol V2 server specification using the [Hono](https://hono.dev/) web framework.
 
+[🤖 Check out the Deep Research A2A Agent built on top of this package!](https://github.com/iamarcel/deep-research-agent) It's a great more involved example you can be inspired by (or just straight up use in your project).
+
 ## 🚀 Using This Package
 
 You can easily use this package to build your own A2A-compliant agent server with Hono.

@@ -12,7 +12,10 @@ async function* mySimpleHandler(
   console.log(`Handling task ${context.task.id}`);
   yield {
     state: "working",
-    message: { role: "agent", parts: [{ text: "Working on it..." }] },
+    message: {
+      role: "agent",
+      parts: [{ text: "Working on it...", type: "text" }],
+    },
   };
 
   await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -24,7 +27,7 @@ async function* mySimpleHandler(
       state: "canceled",
       message: {
         role: "agent",
-        parts: [{ text: "Cancellation acknowledged." }],
+        parts: [{ text: "Cancellation acknowledged.", type: "text" }],
       },
     };
     return; // Stop processing
@@ -32,12 +35,12 @@ async function* mySimpleHandler(
 
   yield {
     name: "output.txt", // Artifact needs a name or index
-    parts: [{ text: `Result for task ${context.task.id}` }],
+    parts: [{ text: `Result for task ${context.task.id}`, type: "text" }],
   };
 
   yield {
     state: "completed",
-    message: { role: "agent", parts: [{ text: "Done!" }] },
+    message: { role: "agent", parts: [{ text: "Done!", type: "text" }] },
   };
 }
 
@@ -48,7 +51,13 @@ const server = new A2AServer(mySimpleHandler, {
     name: "My Hono Agent",
     url: "http://localhost:41241",
     capabilities: { streaming: true },
-    skills: [],
+    skills: [
+      {
+        id: "test-a2a",
+        name: "Test A2A",
+        description: "A skill to test the A2A protocol",
+      },
+    ],
   },
   cors: { origin: "*" }, // Example CORS config
 });

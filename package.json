@@ -1,6 +1,6 @@
 {
   "name": "hono-a2a-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A modern A2A Protocol V2 server implementation using Hono",
   "homepage": "https://github.com/iamarcel/a2a-server",
   "repository": "github:iamarcel/a2a-server",
